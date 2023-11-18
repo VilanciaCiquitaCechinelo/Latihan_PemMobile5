@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "756170725695",
+    "project_id": "cuaca-8df59",
+    "storage_bucket": "cuaca-8df59.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:756170725695:android:a020e1f825d80bfb029b8a",
+        "android_client_info": {
+          "package_name": "com.example.cuaca"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBd0FJ2mf0uYpms6xxBWiGUqVG1k7khOnw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
