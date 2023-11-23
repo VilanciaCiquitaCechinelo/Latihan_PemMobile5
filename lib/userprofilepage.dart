@@ -8,9 +8,15 @@ class UserProfilePage extends StatefulWidget {
   final File? profileImage;
   String? nama;
   final String? email;
+  String? alamat;
 
-  UserProfilePage({Key? key, this.profileImage, this.nama = 'Vilancia Ciquita Cechinelo', this.email = 'ochin@gmail.com'})
-      : super(key: key);
+  UserProfilePage({
+    Key? key,
+    this.profileImage,
+    this.nama,
+    this.email,
+    this.alamat,
+  }) : super(key: key);
 
   @override
   _UserProfilePageState createState() => _UserProfilePageState();
@@ -19,13 +25,11 @@ class UserProfilePage extends StatefulWidget {
 class _UserProfilePageState extends State<UserProfilePage> {
   File? _newProfileImage;
   String? _loggedInUserEmail;
-  TextEditingController _namaController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _getUserData();
-    _namaController.text = widget.nama ?? '';
   }
 
   Future<void> _getUserData() async {
@@ -34,6 +38,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
       if (user != null) {
         setState(() {
           _loggedInUserEmail = user.email;
+          widget.nama = user.displayName;
+          widget.alamat = 'Belum Diatur';
         });
       }
     } catch (e) {
@@ -52,22 +58,18 @@ class _UserProfilePageState extends State<UserProfilePage> {
     }
   }
 
-  Future<void> _showWebViewDialog(BuildContext context) async {
-    return showDialog(
-      context: context,
-      builder: (context) => CustomWebViewDialog(),
-    );
-  }
-
   void _editNama() {
-    _namaController.text = widget.nama ?? '';
     showDialog(
       context: context,
       builder: (context) {
+        String newName = widget.nama ?? '';
         return AlertDialog(
           title: Text('Ubah Nama'),
           content: TextField(
-            controller: _namaController,
+            onChanged: (value) {
+              newName = value;
+            },
+            controller: TextEditingController(text: widget.nama),
             decoration: InputDecoration(hintText: 'Masukkan nama baru'),
           ),
           actions: <Widget>[
@@ -75,7 +77,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
               child: Text('Simpan'),
               onPressed: () {
                 setState(() {
-                  widget.nama = _namaController.text;
+                  widget.nama = newName;
                 });
                 Navigator.of(context).pop();
               },
@@ -92,6 +94,94 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
+  void _editAlamat() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        String newAlamat = widget.alamat ?? '';
+        return AlertDialog(
+          title: Text('Ubah Alamat'),
+          content: TextField(
+            onChanged: (value) {
+              newAlamat = value;
+            },
+            controller: TextEditingController(text: widget.alamat),
+            decoration: InputDecoration(hintText: 'Masukkan alamat baru'),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Simpan'),
+              onPressed: () {
+                setState(() {
+                  widget.alamat = newAlamat;
+                });
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Batal'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _logout() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (Route<dynamic> route) => false);
+    } catch (e) {
+      print('Error logging out: $e');
+    }
+  }
+
+  Future<void> _showImagePickerOptions() async {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.photo_camera),
+                title: Text('Ambil Foto'),
+                onTap: () {
+                  _pickImage(ImageSource.camera);
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.photo),
+                title: Text('Pilih dari Galeri'),
+                onTap: () {
+                  _pickImage(ImageSource.gallery);
+                  Navigator.pop(context);
+                },
+              ),
+              // WebView option
+              ListTile(
+                leading: Icon(Icons.language),
+                title: Text('Dari Web'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CustomWebViewDialog()),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,8 +189,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
         title: Text('Biodata Pengguna'),
         actions: [
           IconButton(
-            icon: Icon(Icons.edit),
-            onPressed: _editNama,
+            icon: Icon(Icons.exit_to_app),
+            onPressed: _logout,
           ),
         ],
       ),
@@ -114,46 +204,11 @@ class _UserProfilePageState extends State<UserProfilePage> {
         ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: ListView(
             children: [
               GestureDetector(
                 onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text('Pilih Sumber Gambar'),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          ListTile(
-                            leading: Icon(Icons.photo_library),
-                            title: Text('Galeri'),
-                            onTap: () {
-                              _pickImage(ImageSource.gallery);
-                              Navigator.pop(context);
-                            },
-                          ),
-                          ListTile(
-                            leading: Icon(Icons.camera_alt),
-                            title: Text('Kamera'),
-                            onTap: () {
-                              _pickImage(ImageSource.camera);
-                              Navigator.pop(context);
-                            },
-                          ),
-                          ListTile(
-                            leading: Icon(Icons.web),
-                            title: Text('Dari Web'),
-                            onTap: () {
-                              Navigator.pop(context);
-                              _showWebViewDialog(context);
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
+                  _showImagePickerOptions();
                 },
                 child: Align(
                   alignment: Alignment.center,
@@ -164,8 +219,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                         : (widget.profileImage != null
                         ? FileImage(widget.profileImage!)
                         : null),
-                    child: (_newProfileImage == null &&
-                        widget.profileImage == null)
+                    child: (_newProfileImage == null && widget.profileImage == null)
                         ? Icon(
                       Icons.person,
                       size: 50,
@@ -176,25 +230,51 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 ),
               ),
               const SizedBox(height: 16),
-              // Biodata Pengguna
-              Text(
-                'Nama: ${widget.nama ?? 'Vilancia Ciquita Cechinelo'}',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+              _buildEditableInfo(
+                label: 'Nama',
+                value: widget.nama ?? 'Belum diatur',
+                onTap: _editNama,
               ),
-              Text(
-                'Email: ${_loggedInUserEmail ?? 'ochin@gmail.com'}',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              _buildEditableInfo(
+                label: 'Alamat',
+                value: widget.alamat ?? 'Belum diatur',
+                onTap: _editAlamat,
+              ),
+              ListTile(
+                title: Text(
+                  'Email: ${_loggedInUserEmail ?? 'Belum diatur'}',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildEditableInfo({required String label, required String value, required VoidCallback onTap}) {
+    return ListTile(
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '$label: $value',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: onTap,
+          ),
+        ],
+      ),
+      onTap: onTap,
     );
   }
 }

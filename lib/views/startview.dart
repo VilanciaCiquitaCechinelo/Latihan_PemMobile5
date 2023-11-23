@@ -74,7 +74,7 @@ class StartPage extends StatelessWidget {
                     color: Colors.white.withOpacity(0.5),
                   ),
                   child: Icon(
-                    Icons.person,
+                    Icons.settings,
                     color: Colors.deepPurpleAccent,
                   ),
                 ),
