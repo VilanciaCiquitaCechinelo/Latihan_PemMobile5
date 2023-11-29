@@ -30,13 +30,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  appwrite: ^11.0.1
   flutter_local_notifications: ^16.1.0
   firebase_messaging: ^14.7.4
   firebase_auth: ^4.14.0
   firebase_core: ^2.22.0
   webview_flutter: ^2.0.14
   path_provider: ^2.1.1
-  http: ^1.1.0
+  http: ^1.0.0
   shared_preferences: ^2.2.2
   cupertino_icons: ^1.0.2
   image_picker: ^1.0.4

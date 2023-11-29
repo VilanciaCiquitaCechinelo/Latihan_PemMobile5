@@ -17,7 +17,7 @@ class AuthModel {
         return firebaseUser;
       }
     } catch (e) {
-      print('Registrasi gagal: $e');
+      print('Registration failed: $e');
     }
     return null;
   }

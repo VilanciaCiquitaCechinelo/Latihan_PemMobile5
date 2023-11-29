@@ -1,8 +1,13 @@
+import 'package:cuaca/accountcontroller.dart';
+import 'package:cuaca/controllers/registercontroller.dart';
+import 'package:flutter/material.dart';
 import 'package:cuaca/controllers/logincontroller.dart';
 import 'package:cuaca/views/registerview.dart';
-import 'package:flutter/material.dart';
 
 class LoginPage extends StatelessWidget {
+  AccountController accountController = AccountController();
+ // RegisterController registerController = RegisterController();
+
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -52,9 +57,11 @@ class LoginPage extends StatelessWidget {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
+                  RegisterController registerController = RegisterController(accountController);
+                  // Create an instance of RegisterController
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => RegisterPage()),
+                    MaterialPageRoute(builder: (context) => RegisterPage(registerController)),
                   );
                 },
                 child: Text('Belum punya akun? Daftar di sini'),
